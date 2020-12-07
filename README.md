@@ -39,7 +39,7 @@ func main() {
     // 执行命令
     payload := salt.RunRequest{
         Target: "*",
-        Function: "test.ping",
+        Function: "cmd.run",
         Arg:      []string{"uptime"},
     }
     resp, err := client.Run(ctx, &payload)
