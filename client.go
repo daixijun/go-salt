@@ -13,13 +13,14 @@ import (
 )
 
 type Client struct {
+	Ctx          context.Context
 	httpClient   *http.Client
 	BaseAPI      string
 	ExternalAuth *ExternalAuth
 	// Token      string
 }
 
-func NewClient(baseAPI string, skipVerify bool) *Client {
+func NewClient(ctx context.Context, baseAPI string, skipVerify bool) *Client {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: skipVerify,
@@ -27,12 +28,13 @@ func NewClient(baseAPI string, skipVerify bool) *Client {
 	}
 	cookieJar, _ := cookiejar.New(nil)
 	return &Client{
+		Ctx:        ctx,
 		httpClient: &http.Client{Transport: tr, Jar: cookieJar},
 		BaseAPI:    baseAPI,
 	}
 }
 
-func (c *Client) doRequest(ctx context.Context, method, uri string, data interface{}) ([]byte, error) {
+func (c *Client) doRequest(method, uri string, data interface{}) ([]byte, error) {
 	// url := fmt.Sprintf("%s/%s", c.BaseAPI, uri)
 	url := strings.Join([]string{c.BaseAPI, uri}, "/")
 
@@ -47,7 +49,7 @@ func (c *Client) doRequest(ctx context.Context, method, uri string, data interfa
 		}
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, url, buf)
+	req, err := http.NewRequestWithContext(c.Ctx, method, url, buf)
 	if err != nil {
 		return nil, err
 	}

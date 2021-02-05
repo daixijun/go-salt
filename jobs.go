@@ -1,7 +1,6 @@
 package salt
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 )
@@ -33,8 +32,8 @@ type JobResponse struct {
 	Return []map[string]bool `json:"return"`
 }
 
-func (c *Client) Jobs(ctx context.Context) (*JobsResponse, error) {
-	data, err := c.doRequest(ctx, "GET", "jobs", nil)
+func (c *Client) Jobs() (*JobsResponse, error) {
+	data, err := c.doRequest("GET", "jobs", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -48,8 +47,8 @@ func (c *Client) Jobs(ctx context.Context) (*JobsResponse, error) {
 	return &jobs, nil
 }
 
-func (c *Client) Job(ctx context.Context, jid string) (*JobResponse, error) {
-	data, err := c.doRequest(ctx, "GET", fmt.Sprintf("%s/%s", "jobs", jid), nil)
+func (c *Client) Job(jid string) (*JobResponse, error) {
+	data, err := c.doRequest("GET", fmt.Sprintf("%s/%s", "jobs", jid), nil)
 	if err != nil {
 		return nil, err
 	}

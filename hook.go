@@ -1,7 +1,6 @@
 package salt
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 )
@@ -12,8 +11,8 @@ type HookResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
-func (c *Client) Hook(ctx context.Context, id string, payload interface{}) (*HookResponse, error) {
-	data, err := c.doRequest(ctx, "POST", "hook/"+id, payload)
+func (c *Client) Hook(id string, payload interface{}) (*HookResponse, error) {
+	data, err := c.doRequest("POST", "hook/"+id, payload)
 	if err != nil {
 		return nil, err
 	}

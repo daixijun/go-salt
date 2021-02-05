@@ -1,7 +1,6 @@
 package salt
 
 import (
-	"context"
 	"encoding/json"
 	"strings"
 )
@@ -72,8 +71,8 @@ type HTTPServer struct {
 	} `json:"Worker Threads"`
 }
 
-func (c *Client) Stats(ctx context.Context) (*StatsResponse, error) {
-	data, err := c.doRequest(ctx, "GET", "stats", nil)
+func (c *Client) Stats() (*StatsResponse, error) {
+	data, err := c.doRequest("GET", "stats", nil)
 
 	if err != nil {
 		return nil, err

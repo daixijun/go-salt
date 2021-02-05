@@ -1,7 +1,6 @@
 package salt
 
 import (
-	"context"
 	"encoding/json"
 )
 
@@ -113,7 +112,7 @@ type MinionResponse struct {
 	Return []map[string]Minion `json:"return"`
 }
 
-func (c *Client) Minions(ctx context.Context) (*MinionResponse, error) {
+func (c *Client) Minions() (*MinionResponse, error) {
 	// data, err := c.doRequest(ctx, "GET", "minions", nil)
 	// if err != nil {
 	// 	return nil, err
@@ -124,17 +123,17 @@ func (c *Client) Minions(ctx context.Context) (*MinionResponse, error) {
 	// 	return nil, err
 	// }
 	// return &minions, nil
-	return c.Minion(ctx, "")
+	return c.Minion("")
 }
 
-func (c *Client) Minion(ctx context.Context, mid string) (*MinionResponse, error) {
+func (c *Client) Minion(mid string) (*MinionResponse, error) {
 	var uri string
 	if mid == "" {
 		uri = "minions"
 	} else {
 		uri = "minions/" + mid
 	}
-	data, err := c.doRequest(ctx, "GET", uri, nil)
+	data, err := c.doRequest("GET", uri, nil)
 	if err != nil {
 		return nil, err
 	}

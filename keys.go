@@ -1,7 +1,6 @@
 package salt
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 )
@@ -22,8 +21,8 @@ type KeyDetailResponse struct {
 	} `json:"return"`
 }
 
-func (c *Client) Keys(ctx context.Context) (*KeysResponse, error) {
-	data, err := c.doRequest(ctx, "GET", "keys", nil)
+func (c *Client) Keys() (*KeysResponse, error) {
+	data, err := c.doRequest("GET", "keys", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +35,8 @@ func (c *Client) Keys(ctx context.Context) (*KeysResponse, error) {
 	return &keys, nil
 }
 
-func (c *Client) Key(ctx context.Context, mid string) (*KeyDetailResponse, error) {
-	data, err := c.doRequest(ctx, "GET",
-		fmt.Sprintf("keys/%s", mid), nil)
+func (c *Client) Key(mid string) (*KeyDetailResponse, error) {
+	data, err := c.doRequest("GET", fmt.Sprintf("keys/%s", mid), nil)
 	if err != nil {
 		return nil, err
 	}

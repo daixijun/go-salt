@@ -1,7 +1,6 @@
 package salt
 
 import (
-	"context"
 	"encoding/json"
 )
 
@@ -23,14 +22,14 @@ type LoginResponse struct {
 }
 
 // Login 认证
-func (c *Client) Login(ctx context.Context, username, password, eauth string) error {
+func (c *Client) Login(username, password, eauth string) error {
 	externalAuth := ExternalAuth{
 		Username: username,
 		Password: password,
 		EAuth:    eauth,
 	}
 
-	data, err := c.doRequest(ctx, "POST", "login", externalAuth)
+	data, err := c.doRequest("POST", "login", externalAuth)
 	if err != nil {
 		return err
 	}
@@ -45,7 +44,7 @@ func (c *Client) Login(ctx context.Context, username, password, eauth string) er
 	return nil
 }
 
-func (c *Client) Logout(ctx context.Context) error {
-	_, err := c.doRequest(ctx, "POST", "logout", nil)
+func (c *Client) Logout() error {
+	_, err := c.doRequest("POST", "logout", nil)
 	return err
 }
