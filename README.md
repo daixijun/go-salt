@@ -24,13 +24,13 @@ func main() {
 
     ctx := context.TODO()
     // 初始化客户端
-    client := salt.NewClient(ctx, "https://saltapi.example.com", true)
-    if err := client.Login("username", "password", "eauth"); err != nil {
+    client := salt.NewClient("https://saltapi.example.com", true)
+    if err := client.Login(ctx, "username", "password", "eauth"); err != nil {
         panic(err)
     }
 
     // 列表 minions
-    minions, err := client.Minions()
+    minions, err := client.ListMinions(ctx)
     if err != nil {
         panic(err)
     }
@@ -42,7 +42,7 @@ func main() {
         Function: "cmd.run",
         Arg:      []string{"uptime"},
     }
-    resp, err := client.Run(&payload)
+    resp, err := client.Run(ctx, &payload)
     if err != nil {
         panic(err)
     }

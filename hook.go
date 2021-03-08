@@ -1,8 +1,8 @@
 package salt
 
 import (
+	"context"
 	"encoding/json"
-	"errors"
 )
 
 type HookResponse struct {
@@ -11,21 +11,14 @@ type HookResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
-func (c *Client) Hook(id string, payload interface{}) (*HookResponse, error) {
-	data, err := c.doRequest("POST", "hook/"+id, payload)
+func (c *client) Hook(ctx context.Context, id string, payload interface{}) (*HookResponse, error) {
+	data, err := c.doRequest(ctx, "POST", "hook/"+id, payload)
 	if err != nil {
 		return nil, err
 	}
 
-	var hook HookResponse
+	var hook *HookResponse
 
-	if err := json.Unmarshal(data, &hook); err != nil {
-		return nil, err
-	}
-
-	if !hook.Success {
-		return nil, errors.New(hook.Message)
-	}
-	return &hook, nil
-
+	err = json.Unmarshal(data, &hook)
+	return hook, err
 }

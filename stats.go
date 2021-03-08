@@ -1,6 +1,7 @@
 package salt
 
 import (
+	"context"
 	"encoding/json"
 	"strings"
 )
@@ -39,7 +40,7 @@ type Applications struct {
 		ResponseStatus string  `json:"Response Status"`
 		StartTime      float64 `json:"Start Time"`
 		EndTime        float64 `json:"End Time"`
-		Client         string  `json:"Client"`
+		Client         string  `json:"testClient"`
 		ProcessingTime float64 `json:"Processing Time"`
 		RequestLine    string  `json:"Request-Line"`
 	} `json:"Requests"`
@@ -71,8 +72,8 @@ type HTTPServer struct {
 	} `json:"Worker Threads"`
 }
 
-func (c *Client) Stats() (*StatsResponse, error) {
-	data, err := c.doRequest("GET", "stats", nil)
+func (c *client) Stats(ctx context.Context) (*StatsResponse, error) {
+	data, err := c.doRequest(ctx, "GET", "stats", nil)
 
 	if err != nil {
 		return nil, err

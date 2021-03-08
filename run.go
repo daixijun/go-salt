@@ -1,6 +1,7 @@
 package salt
 
 import (
+	"context"
 	"encoding/json"
 )
 
@@ -18,10 +19,10 @@ type RunResponse struct {
 	Return []map[string]interface{} `json:"return"`
 }
 
-func (c *Client) Run(payload *RunRequest) (*RunResponse, error) {
+func (c *client) Run(ctx context.Context, payload *RunRequest) (*RunResponse, error) {
 	payload.ExternalAuth = c.ExternalAuth
 
-	data, err := c.doRequest("POST", "/run", payload)
+	data, err := c.doRequest(ctx,"POST", "run", payload)
 	if err != nil {
 		return nil, err
 	}
