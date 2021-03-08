@@ -17,6 +17,7 @@ type Client interface {
 	Logout(ctx context.Context) error
 	ListMinions(ctx context.Context) (*MinionResponse, error)
 	GetMinion(ctx context.Context, mid string) (*MinionResponse, error)
+	AsyncRun(ctx context.Context, payload *AsyncRunRequest) (*AsyncRunResponse, error)
 	ListKeys(ctx context.Context) (*KeysResponse, error)
 	GetKey(ctx context.Context, mid string) (*KeyDetailResponse, error)
 	ListJobs(ctx context.Context)(*JobsResponse, error)

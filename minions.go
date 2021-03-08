@@ -113,6 +113,24 @@ type MinionResponse struct {
 	Return []map[string]Minion `json:"return"`
 }
 
+type AsyncRunRequest struct {
+	Client   string `json:"client"`
+	Target   string `json:"tgt"`
+	Function string `json:"fun"`
+}
+
+type AsyncRunResponse struct {
+	Return []struct {
+		Jid     string   `json:"jid"`
+		Minions []string `json:"minions"`
+	} `json:"return"`
+	Links struct {
+		Jobs []struct {
+			Href string `json:"href"`
+		} `json:"jobs"`
+	} `json:"_links"`
+}
+
 func (c *client) ListMinions(ctx context.Context) (*MinionResponse, error) {
 	// data, err := testClient.doRequest(ctx, "GET", "minions", nil)
 	// if err != nil {
@@ -140,8 +158,17 @@ func (c *client) GetMinion(ctx context.Context, mid string) (*MinionResponse, er
 	}
 
 	var minion MinionResponse
-	if err := json.Unmarshal(data, &minion); err != nil {
+	err = json.Unmarshal(data, &minion)
+	return &minion, err
+}
+
+func (c *client) AsyncRun(ctx context.Context, payload *AsyncRunRequest) (*AsyncRunResponse, error)  {
+	data, err := c.doRequest(ctx, "POST", "minions", payload)
+	if err != nil {
 		return nil, err
 	}
-	return &minion, nil
+
+	var resp AsyncRunResponse
+	err = json.Unmarshal(data, &resp)
+	return &resp, err
 }

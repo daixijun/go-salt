@@ -56,7 +56,7 @@ func main() {
 - [x] 登出 [logout](https://docs.saltstack.com/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#logout)
 - [x] 查看 minion 列表 [minions](https://docs.saltstack.com/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#minions)
 - [x] 查看 minion 详情 [minion](<https://docs.saltstack.com/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#get--minions-(mid)>)
-- [ ] 执行异步任务 [post-minions](https://docs.saltstack.com/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#post--minions)
+- [x] 执行异步任务 [post-minions](https://docs.saltstack.com/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#post--minions)
 - [x] 查看 job 列表 [jobs](https://docs.saltstack.com/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#minions)
 - [x] 查看 job 详情 [job](<https://docs.saltstack.com/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#get--jobs-(jid)>)
 - [x] 查看 key 列表 [keys](https://docs.saltstack.com/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#keys)
