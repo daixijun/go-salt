@@ -12,7 +12,9 @@ import (
 	"strings"
 )
 
-type Client interface {
+var _ IClient = (*client)(nil)
+
+type IClient interface {
 	Login(ctx context.Context, username, password, eauth string) error
 	Logout(ctx context.Context) error
 	ListMinions(ctx context.Context) (*MinionResponse, error)
@@ -34,7 +36,7 @@ type client struct {
 	// Token      string
 }
 
-func NewClient(baseAPI string, skipVerify bool) Client {
+func NewClient(baseAPI string, skipVerify bool) IClient {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: skipVerify,
