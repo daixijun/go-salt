@@ -3,49 +3,55 @@ package salt
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 )
 
-type ExternalAuth struct {
+type loginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	EAuth    string `json:"eauth"`
 }
 
-type LoginResponse struct {
+type loginResponse struct {
 	Return []struct {
-		Token  string   `json:"Token"`
+		User   string   `json:"user"`
+		Token  string   `json:"token"`
+		EAuth  string   `json:"eauth"`
 		Start  float64  `json:"start"`
 		Expire float64  `json:"expire"`
-		User   string   `json:"user"`
-		EAuth  string   `json:"eauth"`
 		Perms  []string `json:"perms"`
 	} `json:"return"`
 }
 
 // Login 认证
 func (c *client) Login(ctx context.Context, username, password, eauth string) error {
-	externalAuth := ExternalAuth{
+	postData := loginRequest{
 		Username: username,
 		Password: password,
 		EAuth:    eauth,
 	}
 
-	data, err := c.doRequest(ctx, "POST", "login", externalAuth)
+	data, err := c.post(ctx, "login", postData)
 	if err != nil {
 		return err
 	}
 
-	var loginResp LoginResponse
+	var loginResp loginResponse
 	if err := json.Unmarshal(data, &loginResp); err != nil {
 		return err
 	}
 
-	c.ExternalAuth = &externalAuth
+	c.token = loginResp.Return[0].Token
 
 	return nil
 }
 
 func (c *client) Logout(ctx context.Context) error {
-	_, err := c.doRequest(ctx, "POST", "logout", nil)
-	return err
+	_, err := c.post(ctx, "logout", nil)
+	if err != nil {
+		return fmt.Errorf("logout error: %w", err)
+	}
+
+	c.token = ""
+	return nil
 }

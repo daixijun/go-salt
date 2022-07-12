@@ -7,51 +7,88 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"strings"
+	"time"
 )
 
-var _ IClient = (*client)(nil)
+var _ Client = (*client)(nil)
 
-type IClient interface {
-	Login(ctx context.Context, username, password, eauth string) error
-	Logout(ctx context.Context) error
-	ListMinions(ctx context.Context) (*MinionResponse, error)
-	GetMinion(ctx context.Context, mid string) (*MinionResponse, error)
-	AsyncRun(ctx context.Context, payload *AsyncRunRequest) (*AsyncRunResponse, error)
-	ListKeys(ctx context.Context) (*KeysResponse, error)
-	GetKey(ctx context.Context, mid string) (*KeyDetailResponse, error)
-	ListJobs(ctx context.Context)(*JobsResponse, error)
-	GetJob(ctx context.Context, jid string) (*JobResponse, error)
-	Run(ctx context.Context, payload *RunRequest)(*RunResponse, error)
-	Hook(ctx context.Context, id string, payload interface{}) (*HookResponse, error)
-	Stats(ctx context.Context) (*StatsResponse, error)
+type (
+	Client interface {
+		Login(ctx context.Context, username, password, eauth string) error
+		Logout(ctx context.Context) error
+		ListMinions(ctx context.Context) ([]Minion, error)
+		GetMinion(ctx context.Context, mid string) (*Minion, error)
+		LocalClient(ctx context.Context, tgt, fun string, arg []string, opts ...RunOption) (map[string]LocalClientReturn, error)
+		LocalClientAsync(ctx context.Context, tgt, fun string, arg []string, opts ...RunOption) (jid string, err error)
+		ListJobs(ctx context.Context) ([]Job, error)
+		GetJob(ctx context.Context, jid string) (*Job, error)
+		Hook(ctx context.Context, id string, payload interface{}) error
+		Stats(ctx context.Context) (*stats, error)
+		// Wheel Client Keys
+		ListKeys(ctx context.Context) (*ListKeysReturn, error)
+		GetKeyString(ctx context.Context, match string) (map[string]string, error)
+		GetKeyFinger(ctx context.Context, match string) (map[string]string, error)
+		AcceptKey(ctx context.Context, match string) ([]string, error)
+		RejectedKey(ctx context.Context, match string) ([]string, error)
+		DeleteKey(ctx context.Context, match string) ([]string, error)
+	}
+	client struct {
+		httpClient *http.Client
+		baseAPI    string
+		token      string
+	}
+	clientOptions struct {
+		skipVerify bool
+		timeout    time.Duration
+	}
+	ClientOption func(options *clientOptions)
+)
+
+func WithInsecure() ClientOption {
+	return func(options *clientOptions) {
+		options.skipVerify = true
+	}
 }
 
-type client struct {
-	httpClient   *http.Client
-	BaseAPI      string
-	ExternalAuth *ExternalAuth
-	// Token      string
+func WithTimeout(timeout time.Duration) ClientOption {
+	return func(options *clientOptions) {
+		options.timeout = timeout
+	}
 }
 
-func NewClient(baseAPI string, skipVerify bool) IClient {
+func NewClient(baseAPI string, opts ...ClientOption) *client {
+	options := clientOptions{
+		skipVerify: false,
+		timeout:    60,
+	}
+
+	for _, o := range opts {
+		o(&options)
+	}
+
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		log.Fatalf("Got error while creating cookie jar %s", err.Error())
+	}
+	c := &client{
+		baseAPI: baseAPI,
+	}
+
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: skipVerify,
+			InsecureSkipVerify: options.skipVerify,
 		},
 	}
-	cookieJar, _ := cookiejar.New(nil)
-	return &client{
-		httpClient: &http.Client{Transport: tr, Jar: cookieJar},
-		BaseAPI:    baseAPI,
-	}
+	c.httpClient = &http.Client{Transport: tr, Jar: jar, Timeout: options.timeout * time.Second}
+	return c
 }
 
 func (c *client) doRequest(ctx context.Context, method, uri string, data interface{}) ([]byte, error) {
-	// url := fmt.Sprintf("%s/%s", testClient.BaseAPI, uri)
-	url := strings.Join([]string{c.BaseAPI, uri}, "/")
+	url := strings.Join([]string{c.baseAPI, uri}, "/")
 
 	var buf io.ReadWriter
 	if data != nil {
@@ -71,10 +108,10 @@ func (c *client) doRequest(ctx context.Context, method, uri string, data interfa
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	//
-	// if c.Token != "" {
-	// 	req.Header.Set("X-Auth-Token", testClient.Token)
-	// }
+
+	if c.token != "" {
+		req.Header.Set("X-Auth-Token", c.token)
+	}
 
 	resp, err := c.httpClient.Do(req)
 
@@ -82,7 +119,9 @@ func (c *client) doRequest(ctx context.Context, method, uri string, data interfa
 		return nil, err
 	}
 
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -90,4 +129,12 @@ func (c *client) doRequest(ctx context.Context, method, uri string, data interfa
 	}
 
 	return respBody, nil
+}
+
+func (c *client) get(ctx context.Context, uri string) ([]byte, error) {
+	return c.doRequest(ctx, "GET", uri, nil)
+}
+
+func (c *client) post(ctx context.Context, uri string, data interface{}) ([]byte, error) {
+	return c.doRequest(ctx, "POST", uri, data)
 }

@@ -3,6 +3,7 @@ package salt
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 )
 
 type Minion struct {
@@ -22,7 +23,7 @@ type Minion struct {
 		Nameservers   []string `json:"nameservers"`
 		IP4Namespaces []string `json:"ip4_namespaces"`
 		IP6Namespaces []string `json:"ip6_namespaces"`
-		Sortlist      []string `json:"sortlist"`
+		SortList      []string `json:"sortlist"`
 		Domain        string   `json:"domain"`
 		Search        []string `json:"search"`
 		Options       []string `json:"options"`
@@ -53,7 +54,7 @@ type Minion struct {
 		Model  string `json:"model"`
 	} `json:"gpus"`
 	NumCPUS  int      `json:"num_cpus"`
-	CPUarch  string   `json:"cpuarch"`
+	CPUArch  string   `json:"cpuarch"`
 	CPUModel string   `json:"cpu_model"`
 	CPUFlags []string `json:"cpu_flags"`
 	Selinux  struct {
@@ -65,43 +66,43 @@ type Minion struct {
 		Features string `json:"features"`
 	} `json:"systemd"`
 	Init               string              `json:"init"`
-	LsbDistribID       string              `json:"lsb_distrib_id"`
-	LsbDistribCodename string              `json:"lsb_distrib_codename"`
+	LSBDistribID       string              `json:"lsb_distrib_id"`
+	LSBDistribCodename string              `json:"lsb_distrib_codename"`
 	OS                 string              `json:"os"`
-	Osfullname         string              `json:"osfullname"`
-	Osrelease          string              `json:"osrelease"`
-	OsreleaseInfo      []int               `json:"osrelease_info"`
-	Oscodename         string              `json:"oscodename"`
-	Osmajorrelease     int                 `json:"osmajorrelease"`
+	OSFullName         string              `json:"osfullname"`
+	OSRelease          string              `json:"osrelease"`
+	OSReleaseInfo      []int               `json:"osrelease_info"`
+	OSCodename         string              `json:"oscodename"`
+	OSMajorRelease     int                 `json:"osmajorrelease"`
 	OSFinger           string              `json:"osfinger"`
-	OsFamily           string              `json:"os_family"`
-	Osarch             string              `json:"osarch"`
+	OSFamily           string              `json:"os_family"`
+	OSArch             string              `json:"osarch"`
 	MemTotal           int                 `json:"mem_total"`
 	SwapTotal          int                 `json:"swap_total"`
-	Biosversion        string              `json:"biosversion"`
-	Biosreleasedate    string              `json:"biosreleasedate"`
-	Productname        string              `json:"productname"`
+	BiosVersion        string              `json:"biosversion"`
+	BiosReleaseDate    string              `json:"biosreleasedate"`
+	ProductName        string              `json:"productname"`
 	Manufacturer       string              `json:"manufacturer"`
 	UUID               string              `json:"uuid"`
-	Serialnumber       string              `json:"serialnumber"`
+	SerialNumber       string              `json:"serialnumber"`
 	Virtual            string              `json:"virtual"`
 	PS                 string              `json:"ps"`
 	Path               string              `json:"path"`
-	Systempath         []string            `json:"systempath"`
-	Pythonexecutable   string              `json:"pythonexecutable"`
-	Pythonpath         []string            `json:"pythonpath"`
-	Pythonversion      []interface{}       `json:"pythonversion"`
-	Saltpath           string              `json:"saltpath"`
-	Saltversion        string              `json:"saltversion"`
-	Saltversioninfo    []int               `json:"saltversioninfo"`
+	SystemPath         []string            `json:"systempath"`
+	PythonExecutable   string              `json:"pythonexecutable"`
+	PythonPath         []string            `json:"pythonpath"`
+	PythonVersion      []interface{}       `json:"pythonversion"`
+	SaltPath           string              `json:"saltpath"`
+	SaltVersion        string              `json:"saltversion"`
+	SaltVersionInfo    []int               `json:"saltversioninfo"`
 	ZMQVersion         string              `json:"zmqversion"`
 	Disks              []string            `json:"disks"`
-	Ssds               []string            `json:"ssds"`
+	SSDs               []string            `json:"ssds"`
 	Shell              string              `json:"shell"`
 	Lvm                map[string][]string `json:"lvm"`
-	Mdadm              []string            `json:"mdadm"`
+	MDAdm              []string            `json:"mdadm"`
 	Username           string              `json:"username"`
-	Groupname          string              `json:"groupname"`
+	GroupName          string              `json:"groupname"`
 	Pid                int64               `json:"pid"`
 	Gid                int                 `json:"gid"`
 	Uid                int                 `json:"uid"`
@@ -109,66 +110,50 @@ type Minion struct {
 	ZFSFeatureFlags    bool                `json:"zfs_feature_flags"`
 }
 
-type MinionResponse struct {
+type minionResponse struct {
 	Return []map[string]Minion `json:"return"`
 }
 
-type AsyncRunRequest struct {
-	Client   string `json:"client"`
-	Target   string `json:"tgt"`
-	Function string `json:"fun"`
-}
-
-type AsyncRunResponse struct {
-	Return []struct {
-		Jid     string   `json:"jid"`
-		Minions []string `json:"minions"`
-	} `json:"return"`
-	Links struct {
-		Jobs []struct {
-			Href string `json:"href"`
-		} `json:"jobs"`
-	} `json:"_links"`
-}
-
-func (c *client) ListMinions(ctx context.Context) (*MinionResponse, error) {
-	// data, err := testClient.doRequest(ctx, "GET", "minions", nil)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	//
-	// var minions MinionResponse
-	// if err := json.Unmarshal(data, &minions); err != nil {
-	// 	return nil, err
-	// }
-	// return &minions, nil
-	return c.GetMinion(ctx, "")
-}
-
-func (c *client) GetMinion(ctx context.Context, mid string) (*MinionResponse, error) {
-	var uri string
-	if mid == "" {
-		uri = "minions"
-	} else {
-		uri = "minions/" + mid
-	}
-	data, err := c.doRequest(ctx, "GET", uri, nil)
+func (c *client) ListMinions(ctx context.Context) ([]Minion, error) {
+	data, err := c.get(ctx, "minions")
 	if err != nil {
 		return nil, err
 	}
 
-	var minion MinionResponse
-	err = json.Unmarshal(data, &minion)
-	return &minion, err
-}
-
-func (c *client) AsyncRun(ctx context.Context, payload *AsyncRunRequest) (*AsyncRunResponse, error)  {
-	data, err := c.doRequest(ctx, "POST", "minions", payload)
-	if err != nil {
-		return nil, err
-	}
-
-	var resp AsyncRunResponse
+	var resp minionResponse
 	err = json.Unmarshal(data, &resp)
-	return &resp, err
+	if err != nil {
+		return nil, err
+	}
+
+	minions := make([]Minion, 0)
+	for _, v := range resp.Return[0] {
+		minions = append(minions, v)
+	}
+
+	return minions, nil
+}
+
+func (c *client) GetMinion(ctx context.Context, mid string) (*Minion, error) {
+	data, err := c.get(ctx, fmt.Sprintf("minions/%s", mid))
+	if err != nil {
+		return nil, err
+	}
+
+	var resp minionResponse
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return nil, err
+	}
+
+	minionTotal := len(resp.Return[0])
+	if minionTotal == 0 {
+		return nil, fmt.Errorf("minion %s not found", mid)
+	} else if minionTotal > 0 {
+		return nil, fmt.Errorf("expected one return but received %d", len(resp.Return))
+	}
+
+	minion := resp.Return[0][mid]
+	return &minion, nil
+
 }
