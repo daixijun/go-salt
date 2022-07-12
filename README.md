@@ -37,7 +37,7 @@ func main() {
  fmt.Println(minions)
 
  // 执行命令
- resp, err := client.RunCommand(ctx, "*", "cmd.run", []string{"whoami"})
+ resp, err := client.LocalClient(ctx, "*", "cmd.run", []string{"whoami"})
  if err != nil {
   panic(err)
  }
