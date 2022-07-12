@@ -35,6 +35,8 @@ type (
 		AcceptKey(ctx context.Context, match string) ([]string, error)
 		RejectedKey(ctx context.Context, match string) ([]string, error)
 		DeleteKey(ctx context.Context, match string) ([]string, error)
+		// Runner Client
+		ManageStatus(ctx context.Context) (*ManageStatusReturn, error)
 	}
 	client struct {
 		httpClient *http.Client
