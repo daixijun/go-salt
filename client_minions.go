@@ -149,7 +149,7 @@ func (c *client) GetMinion(ctx context.Context, mid string) (*Minion, error) {
 	minionTotal := len(resp.Return[0])
 	if minionTotal == 0 {
 		return nil, fmt.Errorf("minion %s not found", mid)
-	} else if minionTotal > 0 {
+	} else if minionTotal > 1 {
 		return nil, fmt.Errorf("expected one return but received %d", len(resp.Return))
 	}
 
