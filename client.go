@@ -14,83 +14,47 @@ import (
 	"time"
 )
 
-var _ Client = (*client)(nil)
-
-type (
-	Client interface {
-		Login(ctx context.Context, username, password, eauth string) error
-		Logout(ctx context.Context) error
-		ListMinions(ctx context.Context) ([]Minion, error)
-		GetMinion(ctx context.Context, mid string) (*Minion, error)
-		LocalClient(ctx context.Context, tgt, fun string, arg []string, opts ...RunOption) (map[string]LocalClientReturn, error)
-		LocalClientAsync(ctx context.Context, tgt, fun string, arg []string, opts ...RunOption) (jid string, err error)
-		ListJobs(ctx context.Context) ([]Job, error)
-		GetJob(ctx context.Context, jid string) (*Job, error)
-		Hook(ctx context.Context, id string, payload interface{}) error
-		Stats(ctx context.Context) (*stats, error)
-		// Wheel Client Keys
-		ListKeys(ctx context.Context) (*ListKeysReturn, error)
-		GetKeyString(ctx context.Context, match string) (map[string]string, error)
-		GetKeyFinger(ctx context.Context, match string) (map[string]string, error)
-		AcceptKey(ctx context.Context, match string) ([]string, error)
-		RejectedKey(ctx context.Context, match string) ([]string, error)
-		DeleteKey(ctx context.Context, match string) ([]string, error)
-		// Runner Client
-		ManageStatus(ctx context.Context) (*ManageStatusReturn, error)
-	}
-	client struct {
-		httpClient *http.Client
-		baseAPI    string
-		token      string
-	}
-	clientOptions struct {
-		skipVerify bool
-		timeout    time.Duration
-	}
-	ClientOption func(options *clientOptions)
-)
-
-func WithInsecure() ClientOption {
-	return func(options *clientOptions) {
-		options.skipVerify = true
-	}
+type Client struct {
+	httpClient *http.Client
+	endpoint   string
+	token      string
+	skipVerify bool
+	timeout    time.Duration
+	username   string
+	password   string
+	eauth      string
 }
 
-func WithTimeout(timeout time.Duration) ClientOption {
-	return func(options *clientOptions) {
-		options.timeout = timeout
-	}
-}
-
-func NewClient(baseAPI string, opts ...ClientOption) *client {
-	options := clientOptions{
+func NewClient(opts ...ClientOption) *Client {
+	c := &Client{
+		endpoint:   "https://localhost:8000",
 		skipVerify: false,
 		timeout:    60,
+		username:   "salt",
+		password:   "salt",
+		eauth:      "pam",
 	}
 
 	for _, o := range opts {
-		o(&options)
+		o(c)
 	}
 
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		log.Fatalf("Got error while creating cookie jar %s", err.Error())
 	}
-	c := &client{
-		baseAPI: baseAPI,
-	}
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: options.skipVerify,
+			InsecureSkipVerify: c.skipVerify,
 		},
 	}
-	c.httpClient = &http.Client{Transport: tr, Jar: jar, Timeout: options.timeout * time.Second}
+	c.httpClient = &http.Client{Transport: tr, Jar: jar, Timeout: c.timeout * time.Second}
 	return c
 }
 
-func (c *client) doRequest(ctx context.Context, method, uri string, data interface{}) ([]byte, error) {
-	url := strings.Join([]string{c.baseAPI, uri}, "/")
+func (c *Client) doRequest(ctx context.Context, method, uri string, data interface{}) ([]byte, error) {
+	url := strings.Join([]string{c.endpoint, uri}, "/")
 
 	var buf io.ReadWriter
 	if data != nil {
@@ -133,10 +97,10 @@ func (c *client) doRequest(ctx context.Context, method, uri string, data interfa
 	return respBody, nil
 }
 
-func (c *client) get(ctx context.Context, uri string) ([]byte, error) {
+func (c *Client) get(ctx context.Context, uri string) ([]byte, error) {
 	return c.doRequest(ctx, "GET", uri, nil)
 }
 
-func (c *client) post(ctx context.Context, uri string, data interface{}) ([]byte, error) {
+func (c *Client) post(ctx context.Context, uri string, data interface{}) ([]byte, error) {
 	return c.doRequest(ctx, "POST", uri, data)
 }

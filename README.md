@@ -14,34 +14,40 @@ go get github.com/daixijun/go-salt
 package main
 
 import (
- "context"
- "fmt"
+	"context"
+	"fmt"
 
- salt "github.com/daixijun/go-salt"
+	salt "github.com/daixijun/go-salt/v2"
 )
 
 func main() {
 
- ctx := context.TODO()
- // 初始化客户端
- client := salt.NewClient("https://saltapi.example.com")
- if err := client.Login(ctx, "username", "password", "eauth"); err != nil {
-  panic(err)
- }
+	ctx := context.TODO()
+	// 初始化客户端
+	client := salt.NewClient(
+		salt.WithEndpoint("https://saltapi.example.com"),
+		salt.WithUsername("saltapi"),
+		salt.WithPassword("saltapi"),
+		salt.WithAuthBackend("pam"),
+		salt.WithInsecure(),
+	)
+	if err := client.Login(ctx); err != nil {
+		panic(err)
+	}
 
- // 列表 minions
- minions, err := client.ListMinions(ctx)
- if err != nil {
-  panic(err)
- }
- fmt.Println(minions)
+	// 列表 minions
+	minions, err := client.ListMinions(ctx)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(minions)
 
- // 执行命令
- resp, err := client.LocalClient(ctx, "*", "cmd.run", []string{"whoami"})
- if err != nil {
-  panic(err)
- }
- fmt.Println(resp)
+	// 执行命令
+	resp, err := client.LocalClient(ctx, "cmd.run", []string{"whoami"}, salt.WithGlobTarget("minion1"))
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(resp)
 }
 ```
 

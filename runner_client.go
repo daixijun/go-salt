@@ -10,7 +10,7 @@ type ManageStatusReturn struct {
 	Down []string `json:"down"`
 }
 
-func (c *client) ManageStatus(ctx context.Context) (*ManageStatusReturn, error) {
+func (c *Client) ManageStatus(ctx context.Context) (*ManageStatusReturn, error) {
 	req := commandRequest{
 		Client:   RunnerClient,
 		Function: "manage.status",

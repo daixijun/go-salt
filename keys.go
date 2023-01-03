@@ -20,7 +20,7 @@ type listKeysResponse struct {
 	Return ListKeysReturn `json:"return"`
 }
 
-func (c *client) ListKeys(ctx context.Context) (*ListKeysReturn, error) {
+func (c *Client) ListKeys(ctx context.Context) (*ListKeysReturn, error) {
 	data, err := c.get(ctx, "keys")
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func (c *client) ListKeys(ctx context.Context) (*ListKeysReturn, error) {
 	return &resp.Return, nil
 }
 
-func (c *client) GetKeyString(ctx context.Context, match string) (map[string]string, error) {
+func (c *Client) GetKeyString(ctx context.Context, match string) (map[string]string, error) {
 	req := commandRequest{
 		Client:   WheelClient,
 		Function: "key.print",
@@ -58,7 +58,7 @@ func (c *client) GetKeyString(ctx context.Context, match string) (map[string]str
 	return minions, nil
 }
 
-func (c *client) GetKeyFinger(ctx context.Context, match string) (map[string]string, error) {
+func (c *Client) GetKeyFinger(ctx context.Context, match string) (map[string]string, error) {
 	req := commandRequest{
 		Client:   WheelClient,
 		Function: "key.finger",
@@ -81,7 +81,7 @@ func (c *client) GetKeyFinger(ctx context.Context, match string) (map[string]str
 	return minions, nil
 }
 
-func (c *client) AcceptKey(ctx context.Context, mid string) ([]string, error) {
+func (c *Client) AcceptKey(ctx context.Context, mid string) ([]string, error) {
 	req := commandRequest{
 		Client:   WheelClient,
 		Function: "key.accept",
@@ -105,7 +105,7 @@ func (c *client) AcceptKey(ctx context.Context, mid string) ([]string, error) {
 	return minions, nil
 }
 
-func (c *client) RejectedKey(ctx context.Context, mid string) ([]string, error) {
+func (c *Client) RejectedKey(ctx context.Context, mid string) ([]string, error) {
 	req := commandRequest{
 		Client:   WheelClient,
 		Function: "key.reject",
@@ -129,7 +129,7 @@ func (c *client) RejectedKey(ctx context.Context, mid string) ([]string, error) 
 	return minions, nil
 }
 
-func (c *client) DeleteKey(ctx context.Context, match string) ([]string, error) {
+func (c *Client) DeleteKey(ctx context.Context, match string) ([]string, error) {
 	req := commandRequest{
 		Client:   WheelClient,
 		Function: "key.delete",

@@ -13,13 +13,13 @@ const (
 	CP_HTTPSERVER_PREFIX = "Cheroot HTTPServer"
 )
 
-type stats struct {
+type Stats struct {
 	Applications Applications `json:"CherryPy Applications"`
 	HTTPServer   HTTPServer   `json:"Cheroot HTTPServer"`
 }
 
-func (c *client) Stats(ctx context.Context) (*stats, error) {
-	data, err := c.get(ctx, "stats")
+func (c *Client) Stats(ctx context.Context) (*Stats, error) {
+	data, err := c.get(ctx, "Stats")
 
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (c *client) Stats(ctx context.Context) (*stats, error) {
 		}
 	}
 
-	ret := &stats{HTTPServer: server, Applications: app}
+	ret := &Stats{HTTPServer: server, Applications: app}
 
 	return ret, nil
 }

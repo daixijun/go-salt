@@ -12,7 +12,7 @@ type hookResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
-func (c *client) Hook(ctx context.Context, id string, payload interface{}) error {
+func (c *Client) Hook(ctx context.Context, id string, payload interface{}) error {
 	data, err := c.post(ctx, "hook/"+id, payload)
 	if err != nil {
 		return fmt.Errorf("failed to post hook: %w", err)

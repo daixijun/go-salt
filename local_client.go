@@ -17,10 +17,10 @@ type localClientResponse struct {
 	Return []map[string]LocalClientReturn `json:"return"`
 }
 
-func (c *client) LocalClient(ctx context.Context, tgt, fun string, arg []string, opts ...RunOption) (map[string]LocalClientReturn, error) {
+func (c *Client) LocalClient(ctx context.Context, fun string, arg []string, opts ...RunOption) (map[string]LocalClientReturn, error) {
 	payload := commandRequest{
 		Client:     LocalClient,
-		Target:     tgt,
+		Target:     "*",
 		Function:   fun,
 		Arguments:  arg,
 		TargetType: Glob,
@@ -43,7 +43,7 @@ func (c *client) LocalClient(ctx context.Context, tgt, fun string, arg []string,
 	return resp.Return[0], nil
 }
 
-func (c *client) LocalClientAsync(ctx context.Context, tgt, fun string, arg []string, opts ...RunOption) (string, error) {
+func (c *Client) LocalClientAsync(ctx context.Context, tgt, fun string, arg []string, opts ...RunOption) (string, error) {
 	payload := commandRequest{
 		Client:     LocalAsyncClient,
 		Target:     tgt,

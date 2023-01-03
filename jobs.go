@@ -36,7 +36,9 @@ type jobListResponse struct {
 	Return []map[string]Job `json:"return"`
 }
 
-func (c *client) ListJobs(ctx context.Context) ([]Job, error) {
+// ListJobs 获取任务列表
+// https://docs.saltstack.com/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#jobs
+func (c *Client) ListJobs(ctx context.Context) ([]Job, error) {
 	data, err := c.get(ctx, "jobs")
 	if err != nil {
 		return nil, err
@@ -47,7 +49,7 @@ func (c *client) ListJobs(ctx context.Context) ([]Job, error) {
 		return nil, err
 	}
 
-	jobs := make([]Job, 0)
+	jobs := make([]Job, len(resp.Return[0]))
 	for jid, job := range resp.Return[0] {
 		job.JID = jid
 		jobs = append(jobs, job)
@@ -55,7 +57,9 @@ func (c *client) ListJobs(ctx context.Context) ([]Job, error) {
 	return jobs, nil
 }
 
-func (c *client) GetJob(ctx context.Context, jid string) (*Job, error) {
+// LookupJID 获取任务详情
+// https://docs.saltstack.com/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#get--jobs-(jid)
+func (c *Client) LookupJID(ctx context.Context, jid string) (*Job, error) {
 	data, err := c.get(ctx, fmt.Sprintf("%s/%s", "jobs", jid))
 	if err != nil {
 		return nil, err

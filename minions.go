@@ -108,13 +108,15 @@ type Minion struct {
 	Uid                int                 `json:"uid"`
 	ZFSSupport         bool                `json:"zfs_support"`
 	ZFSFeatureFlags    bool                `json:"zfs_feature_flags"`
+	Transactional      bool                `json:"transactional,omitempty"`
+	Roles              []string            `json:"roles,omitempty"`
 }
 
 type minionResponse struct {
 	Return []map[string]Minion `json:"return"`
 }
 
-func (c *client) ListMinions(ctx context.Context) ([]Minion, error) {
+func (c *Client) ListMinions(ctx context.Context) ([]Minion, error) {
 	data, err := c.get(ctx, "minions")
 	if err != nil {
 		return nil, err
@@ -134,7 +136,7 @@ func (c *client) ListMinions(ctx context.Context) ([]Minion, error) {
 	return minions, nil
 }
 
-func (c *client) GetMinion(ctx context.Context, mid string) (*Minion, error) {
+func (c *Client) GetMinion(ctx context.Context, mid string) (*Minion, error) {
 	data, err := c.get(ctx, fmt.Sprintf("minions/%s", mid))
 	if err != nil {
 		return nil, err
