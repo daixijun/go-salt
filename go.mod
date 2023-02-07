@@ -2,6 +2,8 @@ module github.com/daixijun/go-salt/v2
 
 go 1.17
 
+replace github.com/dixijun/go-salt/v2 => ./
+
 require github.com/tidwall/gjson v1.14.4
 
 require (
