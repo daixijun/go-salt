@@ -56,10 +56,9 @@ func NewClient(opts ...ClientOption) *Client {
 func (c *Client) doRequest(ctx context.Context, method, uri string, data interface{}) ([]byte, error) {
 	url := strings.Join([]string{c.endpoint, uri}, "/")
 
-	var buf io.ReadWriter
+	var buf bytes.Buffer
 	if data != nil {
-		buf = &bytes.Buffer{}
-		enc := json.NewEncoder(buf)
+		enc := json.NewEncoder(&buf)
 		enc.SetEscapeHTML(false)
 		err := enc.Encode(data)
 		if err != nil {
@@ -67,7 +66,7 @@ func (c *Client) doRequest(ctx context.Context, method, uri string, data interfa
 		}
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, url, buf)
+	req, err := http.NewRequestWithContext(ctx, method, url, &buf)
 	if err != nil {
 		return nil, err
 	}
@@ -85,9 +84,9 @@ func (c *Client) doRequest(ctx context.Context, method, uri string, data interfa
 		return nil, err
 	}
 
-	defer func(Body io.ReadCloser) {
-		_ = Body.Close()
-	}(resp.Body)
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
