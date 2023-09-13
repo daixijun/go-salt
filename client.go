@@ -6,7 +6,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -88,7 +87,7 @@ func (c *Client) doRequest(ctx context.Context, method, uri string, data interfa
 		_ = resp.Body.Close()
 	}()
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
