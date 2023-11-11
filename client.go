@@ -72,6 +72,7 @@ func (c *Client) doRequest(ctx context.Context, method, uri string, data interfa
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Requested-With", "XMLHttpRequest")
 
 	if c.token != "" {
 		req.Header.Set("X-Auth-Token", c.token)
