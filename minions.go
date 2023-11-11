@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
+	"github.com/tidwall/gjson"
 )
 
 type Minion struct {
@@ -122,15 +124,22 @@ func (c *Client) ListMinions(ctx context.Context) ([]Minion, error) {
 		return nil, err
 	}
 
-	var resp minionResponse
-	err = json.Unmarshal(data, &resp)
-	if err != nil {
-		return nil, err
+	result := gjson.GetBytes(data, "return.0")
+	if !result.Exists() {
+		return nil, fmt.Errorf("no minions found")
 	}
-
 	minions := make([]Minion, 0)
-	for _, v := range resp.Return[0] {
-		minions = append(minions, v)
+	for _, item := range result.Map() {
+		// Skip minions that are offline or not responding
+		if item.Type == gjson.False {
+			continue
+		}
+		var minion Minion
+		err := json.Unmarshal([]byte(item.Raw), &minion)
+		if err != nil {
+			return nil, err
+		}
+		minions = append(minions, minion)
 	}
 
 	return minions, nil
@@ -142,20 +151,25 @@ func (c *Client) GetMinion(ctx context.Context, mid string) (*Minion, error) {
 		return nil, err
 	}
 
-	var resp minionResponse
-	err = json.Unmarshal(data, &resp)
+	result := gjson.GetBytes(data, "return.0")
+	if !result.Exists() {
+		return nil, fmt.Errorf("minion %s not found", mid)
+	}
+
+	res, ok := result.Map()[mid]
+	if !ok {
+		return nil, fmt.Errorf("minion %s not found", mid)
+	}
+
+	if res.Type == gjson.False {
+		return nil, fmt.Errorf("minion %s is offline or not responding", mid)
+	}
+
+	var minion Minion
+	err = json.Unmarshal([]byte(res.Raw), &minion)
 	if err != nil {
 		return nil, err
 	}
 
-	minionTotal := len(resp.Return[0])
-	if minionTotal == 0 {
-		return nil, fmt.Errorf("minion %s not found", mid)
-	} else if minionTotal > 1 {
-		return nil, fmt.Errorf("expected one return but received %d", len(resp.Return))
-	}
-
-	minion := resp.Return[0][mid]
 	return &minion, nil
-
 }
