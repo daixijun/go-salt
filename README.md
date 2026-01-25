@@ -52,12 +52,33 @@ func main() {
   // 监听事件流
   eventChan, err := client.Events(ctx)
   if err != nil {
-   panic(err)
+    panic(err)
   }
   defer close(eventChan)
 
   for event := range eventChan {
-   fmt.Printf("Event: %s\n", event)
+    fmt.Printf("Event: %s\n", event)
+  }
+
+  // WebSocket 连接
+  wsClient, err := client.NewWebSocket(ctx)
+  if err != nil {
+    panic(err)
+  }
+  defer wsClient.Close()
+
+  // 发送 ready 信号以开始接收事件
+  if err := wsClient.SendReady(ctx); err != nil {
+    panic(err)
+  }
+
+  // 监听 WebSocket 事件
+  for {
+    event, err := wsClient.ReceiveEvent(ctx)
+    if err != nil {
+      break
+    }
+    fmt.Printf("WebSocket Event: %s\n", event)
   }
  }
 ```
@@ -73,7 +94,7 @@ func main() {
 - [x] 查看 key 列表 [keys](https://docs.saltproject.io/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#keys)
 - [x] 查看 key 详情 [key](<https://docs.saltproject.io/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#get--keys-(mid)>)
 - [x] 执行命令 [Execution Command](https://docs.saltproject.io/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#post--)
-- [x] Webhook [Hook](https://docs.saltproject.io/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#hook)
-- [x] EventBus [Events](https://docs.saltproject.io/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#events)
-- [ ] Websocket [ws](https://docs.saltproject.io/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#ws)
-- [x] 状态信息 [Stats](https://docs.saltproject.io/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#stats)
+ - [x] Webhook [Hook](https://docs.saltproject.io/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#hook)
+ - [x] EventBus [Events](https://docs.saltproject.io/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#events)
+ - [x] Websocket [ws](https://docs.saltproject.io/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#ws)
+ - [x] 状态信息 [Stats](https://docs.saltproject.io/en/latest/ref/netapi/all/salt.netapi.rest_cherrypy.html#stats)
