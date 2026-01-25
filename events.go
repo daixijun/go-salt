@@ -151,14 +151,14 @@ func parseEventFromJSON(jsonData string, event *Event) error {
 
 	// Parse timestamp
 	if stamp := result.Get("stamp"); stamp.Exists() {
-		// Try parsing timestamp (various formats)
-		if stamp.Type == gjson.String {
+		switch stamp.Type {
+		case gjson.String:
 			// Parse as string timestamp
 			t, err := time.Parse("2006-01-02T15:04:05.000000", stamp.String())
 			if err == nil {
 				event.Stamp = t
 			}
-		} else if stamp.Type == gjson.Number {
+		case gjson.Number:
 			// Parse as Unix timestamp
 			event.Stamp = time.Unix(stamp.Int(), 0)
 		}
@@ -190,9 +190,10 @@ func parseEventFromGJSON(jsonData string) *Event {
 
 	// Parse timestamp
 	if stamp := result.Get("stamp"); stamp.Exists() {
-		if stamp.Type == gjson.Number {
+		switch stamp.Type {
+		case gjson.Number:
 			event.Stamp = time.Unix(stamp.Int(), 0)
-		} else {
+		default:
 			t, err := time.Parse("2006-01-02T15:04:05.000000", stamp.String())
 			if err == nil {
 				event.Stamp = t
