@@ -52,7 +52,7 @@ func NewClient(opts ...ClientOption) *Client {
 	return c
 }
 
-func (c *Client) doRequest(ctx context.Context, method, uri string, data interface{}) ([]byte, error) {
+func (c *Client) doRequest(ctx context.Context, method, uri string, data any) ([]byte, error) {
 	url := strings.Join([]string{c.endpoint, uri}, "/")
 
 	var buf bytes.Buffer
@@ -100,6 +100,6 @@ func (c *Client) get(ctx context.Context, uri string) ([]byte, error) {
 	return c.doRequest(ctx, "GET", uri, nil)
 }
 
-func (c *Client) post(ctx context.Context, uri string, data interface{}) ([]byte, error) {
+func (c *Client) post(ctx context.Context, uri string, data any) ([]byte, error) {
 	return c.doRequest(ctx, "POST", uri, data)
 }

@@ -9,18 +9,18 @@ import (
 )
 
 type Minion struct {
-	ID        string      `json:"id"`
-	CWD       string      `json:"cwd"`
-	NodeName  string      `json:"nodename"`
-	MachineID string      `json:"machine_id"`
-	Master    string      `json:"master"`
-	ServerID  int64       `json:"server_id"`
-	Localhost string      `json:"localhost"`
-	Host      string      `json:"host"`
-	Domain    string      `json:"domain"`
-	IPGW      interface{} `json:"ip_gw"`
-	IP4GW     interface{} `json:"ip4_gw"`
-	IP6GW     interface{} `json:"ip6_gw"`
+	ID        string `json:"id"`
+	CWD       string `json:"cwd"`
+	NodeName  string `json:"nodename"`
+	MachineID string `json:"machine_id"`
+	Master    string `json:"master"`
+	ServerID  int64  `json:"server_id"`
+	Localhost string `json:"localhost"`
+	Host      string `json:"host"`
+	Domain    string `json:"domain"`
+	IPGW      any    `json:"ip_gw"`
+	IP4GW     any    `json:"ip4_gw"`
+	IP6GW     any    `json:"ip6_gw"`
 	DNS       struct {
 		Nameservers   []string `json:"nameservers"`
 		IP4Namespaces []string `json:"ip4_namespaces"`
@@ -93,7 +93,7 @@ type Minion struct {
 	SystemPath         []string            `json:"systempath"`
 	PythonExecutable   string              `json:"pythonexecutable"`
 	PythonPath         []string            `json:"pythonpath"`
-	PythonVersion      []interface{}       `json:"pythonversion"`
+	PythonVersion      []any               `json:"pythonversion"`
 	SaltPath           string              `json:"saltpath"`
 	SaltVersion        string              `json:"saltversion"`
 	SaltVersionInfo    []int               `json:"saltversioninfo"`

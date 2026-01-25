@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type TMPStats map[string]interface{}
+type TMPStats map[string]any
 
 const (
 	CP_APPLICATIONS      = "CherryPy Applications"
@@ -20,7 +20,6 @@ type Stats struct {
 
 func (c *Client) Stats(ctx context.Context) (*Stats, error) {
 	data, err := c.get(ctx, "Stats")
-
 	if err != nil {
 		return nil, err
 	}

@@ -7,11 +7,10 @@ import (
 )
 
 type Job struct {
-	JID       string        `json:"jid,omitempty"`
-	Function  string        `json:"Function,omitempty"`
-	Arguments []interface{} `json:"Arguments,omitempty"`
-	// KWArguments map[string]interface{} `json:"KWArguments,omitempty"`
-	Target     interface{}          `json:"Target,omitempty"`
+	JID        string               `json:"jid,omitempty"`
+	Function   string               `json:"Function,omitempty"`
+	Arguments  []any                `json:"Arguments,omitempty"`
+	Target     any                  `json:"Target,omitempty"`
 	TargetType TargetType           `json:"Target-Type,omitempty"`
 	StartTime  saltTime             `json:"StartTime"`
 	User       string               `json:"User"`
@@ -21,15 +20,15 @@ type Job struct {
 }
 
 type jobResult struct {
-	Return  interface{} `json:"return"`
-	Retcode int         `json:"retcode"`
-	Success bool        `json:"success"`
-	Out     string      `json:"out,omitempty"`
+	Return  any    `json:"return"`
+	Retcode int    `json:"retcode"`
+	Success bool   `json:"success"`
+	Out     string `json:"out,omitempty"`
 }
 
 type jobDetailResponse struct {
-	Info   []Job                    `json:"info"`
-	Return []map[string]interface{} `json:"return"`
+	Info   []Job            `json:"info"`
+	Return []map[string]any `json:"return"`
 }
 
 type jobListResponse struct {

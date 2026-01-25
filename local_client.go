@@ -9,9 +9,9 @@ import (
 )
 
 type LocalClientReturn struct {
-	Jid     string      `json:"jid"`
-	Ret     interface{} `json:"ret"`
-	Retcode int         `json:"retcode"`
+	Jid     string `json:"jid"`
+	Ret     any    `json:"ret"`
+	Retcode int    `json:"retcode"`
 }
 type localClientResponse struct {
 	Return []map[string]LocalClientReturn `json:"return"`
