@@ -158,9 +158,9 @@ This library uses functional options extensively for configuration:
 
 ### Type Definitions
 
-- Use `interface{}` for flexible JSON fields where necessary
+- Use `any` for flexible JSON fields where necessary (Go 1.18+)
 - Prefer specific types when structure is known
-- Use map types for dynamic data: `map[string]interface{}`, `map[string]string`
+- Use map types for dynamic data: `map[string]any`, `map[string]string`
 
 ### Constants
 
