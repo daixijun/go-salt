@@ -114,10 +114,6 @@ type Minion struct {
 	Roles              []string            `json:"roles,omitempty"`
 }
 
-type minionResponse struct {
-	Return []map[string]Minion `json:"return"`
-}
-
 func (c *Client) ListMinions(ctx context.Context) ([]Minion, error) {
 	data, err := c.get(ctx, "minions")
 	if err != nil {
