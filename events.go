@@ -107,8 +107,8 @@ func (c *Client) Events(ctx context.Context, opts ...EventOption) (<-chan Event,
 			}
 
 			// SSE format: "data: {json}"
-			if strings.HasPrefix(line, "data:") {
-				jsonData := strings.TrimSpace(strings.TrimPrefix(line, "data:"))
+			if jsonData, ok := strings.CutPrefix(line, "data:"); ok {
+				jsonData = strings.TrimSpace(jsonData)
 
 				// Parse event from JSON
 				var event Event
@@ -282,8 +282,8 @@ func (er *EventsReader) ReadEvent() (*Event, error) {
 				continue
 			}
 
-			if strings.HasPrefix(line, "data:") {
-				jsonData := strings.TrimSpace(strings.TrimPrefix(line, "data:"))
+			if jsonData, ok := strings.CutPrefix(line, "data:"); ok {
+				jsonData = strings.TrimSpace(jsonData)
 				event := parseEventFromGJSON(jsonData)
 				if event != nil {
 					return event, nil
